@@ -2,12 +2,16 @@ import { Schema, model, Types, Document } from "mongoose";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export interface User extends Document {
+export interface User {
   _id: Types.ObjectId;
   email: string;
   password_hash: string;
   name: string;
   project_ids: Types.ObjectId[];
+}
+
+export interface UserCreate extends Omit<User, "_id" | "password_hash"> {
+  password: string;
 }
 
 const UserSchema = new Schema<User>({

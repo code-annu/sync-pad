@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodObject, ZodError } from "zod";
 
-export const authValidate =
+export const authValidation =
   (schema: ZodObject) => (req: Request, res: Response, next: NextFunction) => {
     try {
       schema.parse(req.body);
