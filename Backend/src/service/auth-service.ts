@@ -11,7 +11,7 @@ const INVALID_PASSWORD = "Invalid password!";
 
 const SALT_NUM = 10;
 export class AuthService {
-  async registerNewUser(newUser: UserCreate): Promise<User> {
+  async createNewUser(newUser: UserCreate): Promise<User> {
     try {
       var user = await UserModel.findOne({ email: newUser.email });
       if (user) throw Error(EMAIL_ALREADY_REGISTERED_MESSAGE);
@@ -25,7 +25,6 @@ export class AuthService {
         name: newUser.name,
         project_ids: project_ids,
       });
-
       console.log(userCreated);
       return userCreated.toObject();
     } catch (e) {
@@ -33,7 +32,7 @@ export class AuthService {
     }
   }
 
-  async loginUser(email: string, password: string) {
+  async getUser(email: string, password: string) {
     try {
       const user = await UserModel.findOne({ email: email });
       if (!user) throw Error(EMAIL_NOT_FOUND);

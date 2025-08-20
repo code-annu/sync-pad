@@ -1,5 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { AuthService } from "../service/auth-service";
+import { generateJWTAndAttachToResponse, JWTPayload } from "../util/jwt-util";
 
 export class AuthController {
   private authService = new AuthService();
@@ -7,7 +8,7 @@ export class AuthController {
   async registerUser(req: Request, res: Response) {
     try {
       const userData = req.body;
-      const user = await this.authService.registerNewUser(userData);
+      const user = await this.authService.createNewUser(userData);
       res.status(201).json(user);
     } catch (e) {
       const error = e as Error;
@@ -20,8 +21,14 @@ export class AuthController {
   async loginUser(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
-      const user = await this.authService.loginUser(email, password);
-      res.status(200).json(user);
+      const user = await this.authService.getUser(email, password);
+      const payload: JWTPayload = {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+      };
+      const token = generateJWTAndAttachToResponse(res, payload);
+      res.status(200).json({ user: user, access_token: token });
     } catch (e) {
       const error = e as Error;
       res
