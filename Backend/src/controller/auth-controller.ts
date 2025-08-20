@@ -5,6 +5,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   saveRefreshToken,
+  verifyAccessToken,
 } from "../util/jwt-util";
 
 export class AuthController {
@@ -36,13 +37,11 @@ export class AuthController {
       const refreshToken = generateRefreshToken(payload);
       await saveRefreshToken(refreshToken, payload.userId);
 
-      res
-        .status(200)
-        .json({
-          user: user,
-          refresh_oken: refreshToken,
-          access_token: accessToken,
-        });
+      res.status(200).json({
+        user: user,
+        refresh_oken: refreshToken,
+        access_token: accessToken,
+      });
     } catch (e) {
       const error = e as Error;
       res
