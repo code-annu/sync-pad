@@ -18,3 +18,8 @@ authRouter.post(
   authValidate(loginSchema),
   authController.loginUser.bind(authController)
 );
+
+authRouter.post(
+  "/refresh-token",
+  authController.refreshToken.bind(authController)
+);
