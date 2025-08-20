@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import { AuthService } from "../service/auth-service";
-import { generateJWTAndAttachToResponse, JWTPayload } from "../util/jwt-util";
+import { JWTPayload } from "../model/jwt-model";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  saveRefreshToken,
+} from "../util/jwt-util";
 
 export class AuthController {
   private authService = new AuthService();
@@ -23,12 +28,21 @@ export class AuthController {
       const { email, password } = req.body;
       const user = await this.authService.getUser(email, password);
       const payload: JWTPayload = {
-        id: user._id.toString(),
+        userId: user._id.toString(),
         email: user.email,
         name: user.name,
       };
-      const token = generateJWTAndAttachToResponse(res, payload);
-      res.status(200).json({ user: user, access_token: token });
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(payload);
+      await saveRefreshToken(refreshToken, payload.userId);
+
+      res
+        .status(200)
+        .json({
+          user: user,
+          refresh_oken: refreshToken,
+          access_token: accessToken,
+        });
     } catch (e) {
       const error = e as Error;
       res
