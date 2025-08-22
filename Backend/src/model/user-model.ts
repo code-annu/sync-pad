@@ -1,6 +1,12 @@
 import { Schema, model, Types, Document } from "mongoose";
+import { BaseUser } from "../types/user-types";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export interface UserDocument extends BaseUser, Document {
+  _id: Types.ObjectId;
+  password_hash: string;
+}
 
 export interface User extends Document {
   _id: Types.ObjectId;
@@ -14,7 +20,7 @@ export interface UserCreate extends Omit<User, "_id" | "password_hash"> {
   password: string;
 }
 
-const UserSchema = new Schema<User>({
+const UserSchema = new Schema<UserDocument>({
   email: {
     type: String,
     unique: true,
@@ -31,4 +37,4 @@ const UserSchema = new Schema<User>({
   project_ids: { type: [Types.ObjectId], required: false },
 });
 
-export const UserModel = model<User>("User", UserSchema);
+export const UserModel = model<UserDocument>("User", UserSchema);
