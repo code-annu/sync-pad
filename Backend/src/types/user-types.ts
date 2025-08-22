@@ -1,11 +1,22 @@
-export interface BaseUser {
+interface BaseUser {
   email: string;
   name: string;
-  project_ids: [string];
 }
 
-export interface RegisterUserRequest extends Pick<BaseUser, "email" | "name"> {
+export interface UserRegisterRequest {
+  email: string;
   password: string;
+  name: string;
 }
 
-export interface UpdateUserRequest extends Partial<BaseUser> {}
+export interface UserUpdateRequest {
+  email: string;
+  name: string;
+}
+
+export interface UserCreate extends BaseUser {
+  passwordHash: string;
+}
+
+export interface UserUpdate extends Partial<BaseUser> {}
+

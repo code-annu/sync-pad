@@ -1,10 +1,20 @@
-import { UserModel, User, UserDocument } from "../model/user-model";
-import { UpdateUserRequest } from "../types/user-types";
+import { UserDocument, User } from "../model/user-model";
+import { UserCreate, UserUpdate } from "../types/user-types";
 
 export class UserRepository {
+  async createUser(userData: UserCreate): Promise<UserDocument> {
+    try {
+      const user = new User(userData);
+      const savedUser = await user.save();
+      return savedUser.toObject();
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async getUserById(userId: string): Promise<UserDocument> {
     try {
-      const user = await UserModel.findById(userId);
+      const user = await User.findById(userId);
       if (!user) throw Error(`User not found with id ${userId}`);
       return user;
     } catch (e) {
@@ -14,7 +24,7 @@ export class UserRepository {
 
   async getUserByEmail(email: string): Promise<UserDocument> {
     try {
-      const user = await UserModel.findOne({ email: email });
+      const user = await User.findOne({ email: email });
       if (!user) throw Error(`User not found with email ${email}`);
       return user;
     } catch (e) {
@@ -22,16 +32,44 @@ export class UserRepository {
     }
   }
 
-  async updateUser(
-    userId: string,
-    userData: UpdateUserRequest
-  ): Promise<UserDocument> {
+  async updateUser(userId: string, updates: UserUpdate): Promise<UserDocument> {
     try {
-      const updatedUser = await UserModel.findByIdAndUpdate(userId, {
-        $set: userData,
+      const updatedUser = await User.findByIdAndUpdate(userId, {
+        $set: updates,
       });
       if (!updatedUser) throw Error("Unable to update user");
       return updatedUser;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async addProjectId(userId: string, projectId: string): Promise<UserDocument> {
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { projectIds: projectId } }, // Append projectIds array with Safely avoid duplicates: $addToSet
+        { new: true }
+      );
+      if (!updatedUser) throw Error("Failed to Add project Id");
+      return updatedUser.toObject();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteProjectId(
+    userId: string,
+    projectId: string
+  ): Promise<UserDocument> {
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $pull: { projectIds: projectId } },
+        { new: true }
+      );
+      if (!updatedUser) throw Error("Failed to Remove project Id");
+      return updatedUser.toObject();
     } catch (e) {
       throw e;
     }
