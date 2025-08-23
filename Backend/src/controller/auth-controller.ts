@@ -3,6 +3,7 @@ import { AuthService } from "../service/auth-service";
 import { JWTPayload } from "../model/jwt-model";
 import { UserService } from "../service/user-service";
 import { RefreshTokenService } from "../service/refresh-token-service";
+
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -17,14 +18,29 @@ export class AuthController {
 
   async registerUser(req: Request, res: Response) {
     try {
-      const userData = req.body;
-      const user = await this.authService.createNewUser(userData);
-      res.status(201).json(user);
+      const { email, password, name } = req.body;
+      if (!email || !password || !name) {
+        res.status(400).json({
+          message: "Invalid inputs. Please proivde email, password and name",
+        });
+      }
+      const [user, refreshTokenData, accessToken] =
+        await this.authService.registerNewUser({
+          email: email,
+          password: password,
+          name: name,
+        });
+      res.status(201).json({
+        user: user,
+        refreshTokenData: refreshTokenData,
+        accessToken: accessToken,
+      });
     } catch (e) {
       const error = e as Error;
-      res
-        .status(400)
-        .json({ message: "Failed to register new User", error: error.message });
+      res.status(400).json({
+        message: "Failed to register new User",
+        error: error.message,
+      });
     }
   }
 
@@ -32,6 +48,11 @@ export class AuthController {
     try {
       const { email, password } = req.body;
       const user = await this.authService.getUser(email, password);
+
+      await this.refreshTokenService.invalidateRefreshTokenByUserId(
+        user._id.toString()
+      );
+
       const payload: JWTPayload = {
         userId: user._id.toString(),
         email: user.email,
@@ -62,8 +83,6 @@ export class AuthController {
 
   async refreshToken(req: Request, res: Response) {
     try {
-      console.log(req);
-      console.log(req.body);
       let refreshToken = req.body.refreshToken || req.cookies.refreshToken;
       if (!refreshToken) {
         res.status(401).json({
@@ -96,7 +115,6 @@ export class AuthController {
       }
 
       let user = await this.userService.findUserByEmail(decoded.email);
-      await this.refreshTokenService.invalidateRefreshToken(refreshToken);
       if (!user) {
         res.status(401).json({
           success: false,
@@ -105,6 +123,7 @@ export class AuthController {
         return;
       }
 
+      await this.refreshTokenService.invalidateRefreshToken(refreshToken);
       const payload: JWTPayload = {
         userId: user._id.toString(),
         email: user.email,

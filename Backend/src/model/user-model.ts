@@ -2,7 +2,7 @@ import { Schema, model, Types, Document } from "mongoose";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export interface UserDocument extends Document {
+export interface User extends Document {
   _id: Types.ObjectId;
   email: string;
   passwordHash: string;
@@ -12,7 +12,7 @@ export interface UserDocument extends Document {
   updatedAt: Date;
 }
 
-const UserSchema = new Schema<UserDocument>({
+const UserSchema = new Schema<User>({
   email: {
     type: String,
     unique: true,
@@ -29,4 +29,4 @@ const UserSchema = new Schema<UserDocument>({
   projectIds: [{ type: Types.ObjectId, required: true }],
 });
 
-export const User = model<UserDocument>("User", UserSchema);
+export const UserModel = model<User>("User", UserSchema);

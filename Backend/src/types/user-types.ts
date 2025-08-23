@@ -20,3 +20,4 @@ export interface UserCreate extends BaseUser {
 
 export interface UserUpdate extends Partial<BaseUser> {}
 
+export interface UserResponse extends BaseUser {}
