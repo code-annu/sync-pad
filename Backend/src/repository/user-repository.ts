@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { User, UserModel } from "../model/user-model";
 import { UserCreate, UserUpdate } from "../types/user-types";
 
@@ -12,27 +13,20 @@ export class UserRepository {
     }
   }
 
-  async getUserById(userId: string): Promise<User> {
-    try {
-      const user = await UserModel.findById(userId);
-      if (!user) throw Error(`User not found with id ${userId}`);
-      return user;
-    } catch (e) {
-      throw e;
-    }
+  async getUserById(userId: string | Types.ObjectId): Promise<User | null> {
+    const user = await UserModel.findById(userId);
+    return user ? user.toObject() : null;
   }
 
-  async getUserByEmail(email: string): Promise<User> {
-    try {
-      const user = await UserModel.findOne({ email: email });
-      if (!user) throw Error(`User not found with email ${email}`);
-      return user;
-    } catch (e) {
-      throw e;
-    }
+  async getUserByEmail(email: string): Promise<User | null> {
+    const user = await UserModel.findOne({ email: email });
+    return user ? user.toObject() : null;
   }
 
-  async updateUser(userId: string, updates: UserUpdate): Promise<User> {
+  async updateUser(
+    userId: string | Types.ObjectId,
+    updates: UserUpdate
+  ): Promise<User> {
     try {
       const updatedUser = await UserModel.findByIdAndUpdate(userId, {
         $set: updates,
@@ -44,7 +38,10 @@ export class UserRepository {
     }
   }
 
-  async addProjectId(userId: string, projectId: string): Promise<User> {
+  async addProjectId(
+    userId: string | Types.ObjectId,
+    projectId: string | Types.ObjectId
+  ): Promise<User> {
     try {
       const updatedUser = await UserModel.findByIdAndUpdate(
         userId,
@@ -59,8 +56,8 @@ export class UserRepository {
   }
 
   async deleteProjectId(
-    userId: string,
-    projectId: string
+    userId: string | Types.ObjectId,
+    projectId: string | Types.ObjectId
   ): Promise<User> {
     try {
       const updatedUser = await UserModel.findByIdAndUpdate(

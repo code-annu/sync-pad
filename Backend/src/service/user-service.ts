@@ -1,4 +1,4 @@
-import { UserModel, User } from "../model/user-model";
+import {  User, UserModel } from "../model/user-model";
 
 export class UserService {
   async findUserById(userId: string): Promise<User> {

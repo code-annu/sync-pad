@@ -3,11 +3,11 @@ import { AuthService } from "../service/auth-service";
 import { JWTPayload } from "../model/jwt-model";
 import { UserService } from "../service/user-service";
 import { RefreshTokenService } from "../service/refresh-token-service";
+import { mapToAuthResponse } from "../mappers/auth-mapper";
 
 import {
   generateAccessToken,
   generateRefreshToken,
-  saveRefreshToken,
   verifyRefreshToken,
 } from "../util/jwt-util";
 
@@ -31,11 +31,9 @@ export class AuthController {
           name: name,
         });
 
-      res.status(201).json({
-        user: user,
-        refreshTokenData: refreshTokenData,
-        accessToken: accessToken,
-      });
+      res
+        .status(201)
+        .json(mapToAuthResponse(user, refreshTokenData, accessToken));
     } catch (e) {
       const error = e as Error;
       res.status(400).json({
@@ -57,11 +55,9 @@ export class AuthController {
       const [user, refreshTokenData, accessToken] =
         await this.authService.loginUser(email, password);
 
-      res.status(200).json({
-        user: user,
-        refreshTokenData: refreshTokenData,
-        accessToken: accessToken,
-      });
+      res
+        .status(200)
+        .json(mapToAuthResponse(user, refreshTokenData, accessToken));
     } catch (e) {
       const error = e as Error;
       res.status(400).json({
