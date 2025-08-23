@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { RefreshToken, RefreshTokenModel } from "../model/refresh-token-model";
 import { RefreshTokenCreate } from "../types/refresh-token-types";
 
@@ -12,7 +13,7 @@ export class RefreshTokenRespository {
     }
   }
 
-  async deleteRefreshToken(userId: string) {
+  async deleteRefreshToken(userId: string | Types.ObjectId) {
     try {
       await RefreshTokenModel.deleteOne({ userId: userId });
     } catch (e) {

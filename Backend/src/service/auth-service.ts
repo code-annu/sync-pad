@@ -37,6 +37,7 @@ export class AuthService {
         name: newUser.name,
       };
       const savedUser = await this.uesrRepository.saveUser(userData);
+
       const payload: JWTPayload = {
         email: savedUser.email,
         userId: savedUser.name,
@@ -58,25 +59,36 @@ export class AuthService {
     }
   }
 
-  async createNewUser(newUser: {
-    email: string;
-    password: string;
-    name: string;
-  }): Promise<User> {
+  async loginUser(
+    email: string,
+    password: string
+  ): Promise<[User, RefreshToken, string]> {
     try {
-      var user = await UserModel.findOne({ email: newUser.email });
-      if (user) throw Error(EMAIL_ALREADY_REGISTERED_MESSAGE);
+      const user = await this.uesrRepository.getUserByEmail(email);
+      if (!user) throw Error(EMAIL_NOT_FOUND);
 
-      const password_hash = await bcrypt.hash(newUser.password, SALT_NUM);
-      const project_ids: Types.ObjectId[] = [];
+      const match = bcrypt.compare(password, user.passwordHash);
+      if (!match) throw Error(INVALID_PASSWORD);
 
-      const userCreated = await UserModel.create({
-        email: newUser.email,
-        password_hash: password_hash,
-        name: newUser.name,
-        project_ids: project_ids,
-      });
-      return userCreated.toObject();
+      this.refreshTokenRepository.deleteRefreshToken(user._id.toString());
+
+      const payload: JWTPayload = {
+        userId: user._id.toString(),
+        email: user.email,
+      };
+
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(payload);
+
+      const refreshTokenData: RefreshTokenCreate = {
+        token: refreshToken,
+        userId: user._id.toString(),
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      };
+      const savedRefreshToken =
+        await this.refreshTokenRepository.saveRefreshToken(refreshTokenData);
+
+      return [user, savedRefreshToken, accessToken];
     } catch (e) {
       throw e;
     }

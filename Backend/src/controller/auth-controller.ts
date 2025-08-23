@@ -16,7 +16,7 @@ export class AuthController {
   private refreshTokenService = new RefreshTokenService();
   private userService = new UserService();
 
-  async registerUser(req: Request, res: Response) {
+  async registerPost(req: Request, res: Response) {
     try {
       const { email, password, name } = req.body;
       if (!email || !password || !name) {
@@ -30,6 +30,7 @@ export class AuthController {
           password: password,
           name: name,
         });
+
       res.status(201).json({
         user: user,
         refreshTokenData: refreshTokenData,
@@ -44,40 +45,29 @@ export class AuthController {
     }
   }
 
-  async loginUser(req: Request, res: Response) {
+  async loginPost(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
-      const user = await this.authService.getUser(email, password);
+      if (!email || !password) {
+        res.status(400).json({
+          message: "Invalid inputs. Please proivde email and password",
+        });
+      }
 
-      await this.refreshTokenService.invalidateRefreshTokenByUserId(
-        user._id.toString()
-      );
-
-      const payload: JWTPayload = {
-        userId: user._id.toString(),
-        email: user.email,
-      };
-      const accessToken = generateAccessToken(payload);
-      const refreshToken = generateRefreshToken(payload);
-      await saveRefreshToken(refreshToken, payload.userId);
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      });
+      const [user, refreshTokenData, accessToken] =
+        await this.authService.loginUser(email, password);
 
       res.status(200).json({
         user: user,
-        refresh_token: refreshToken,
-        access_token: accessToken,
+        refreshTokenData: refreshTokenData,
+        accessToken: accessToken,
       });
     } catch (e) {
       const error = e as Error;
-      res
-        .status(400)
-        .json({ message: "Failed to login User", error: error.message });
+      res.status(400).json({
+        message: "Failed to Login",
+        error: error.message,
+      });
     }
   }
 
