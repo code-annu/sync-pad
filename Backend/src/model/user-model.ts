@@ -8,8 +8,8 @@ export interface User extends Document {
   email: string;
   passwordHash: string;
   name: string;
-  projectIds: [Types.ObjectId];
-  requests?: [Types.ObjectId];
+  projectIds: Types.ObjectId[];
+  requests?: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }

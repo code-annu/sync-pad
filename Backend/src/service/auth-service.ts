@@ -43,7 +43,7 @@ export class AuthService {
 
       const payload: JWTPayload = {
         email: savedUser.email,
-        userId: savedUser.name,
+        userId: savedUser._id.toString(),
       };
       const accessToken = generateAccessToken(payload);
       const refreshToken = generateRefreshToken(payload);

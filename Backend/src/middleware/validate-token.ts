@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Request,Response, NextFunction } from "express";
 import { verifyAccessToken } from "../util/jwt-util";
+// import Request from "../types/express/index";
 
-export const authenticateToken = (
+export const validateToken = (
   req: Request,
   res: Response,
   next: NextFunction
@@ -18,8 +19,7 @@ export const authenticateToken = (
   }
   try {
     const decoded = verifyAccessToken(token);
-    console.log("Data is decoded: ", decoded);
-    req.user = decoded
+    req.user = decoded;
     next();
   } catch (error) {
     if (error instanceof Error && error.name === "TokenExpiredError") {

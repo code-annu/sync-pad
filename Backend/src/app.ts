@@ -1,7 +1,9 @@
-import express, { Response } from "express";
+import express from "express";
 import { createServer } from "http";
 import { connectDB } from "./config/db";
 import { authRouter } from "./router/auth-router";
+import { projectRouter } from "./router/project-router";
+import { validateToken } from "./middleware/validate-token";
 import Request from "../src/types/express/index";
 
 const app = express();
@@ -11,6 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(authRouter);
+app.use(validateToken, projectRouter);
 
 const PORT = 3000;
 connectDB().then(() => {

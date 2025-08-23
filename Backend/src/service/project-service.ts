@@ -1,44 +1,36 @@
-import { ProjectCreateRequest, ProjectResponse } from "../types/project-types";
-import { UserModel } from "../model/user-model";
-import { Project } from "../model/project-model";
-import { mapProjectDocumentToProjectResponse } from "../mappers/project-mapper";
+import { Project, ProjectModel } from "../model/project-model";
+import { ProjectRepository } from "../repository/project-repository";
+import { UserRepository } from "../repository/user-repository";
 
 export class ProjectService {
-  async createNewProject(
-    projectData: ProjectCreateRequest
-  ): Promise<ProjectResponse> {
+  private projectRepository = new ProjectRepository();
+  private userRepository = new UserRepository();
+
+  async createNewProject(title: string, creatorId: string): Promise<Project> {
     try {
-      const user = await UserModel.findById(projectData.creatorId);
-      if (!user)
-        throw Error(`User with id: ${projectData.creatorId} not found!`);
+      const user = await this.userRepository.getUserById(creatorId);
+      if (!user) throw Error(`User with id: ${creatorId} not found!`);
 
       if (user.projectIds.length >= 5)
         throw Error("You have reached the maximum limit of projects");
 
-      const project = new Project({
-        ...projectData,
-      });
-      const savedProject = (await project.save()).toObject();
+      const project = new ProjectModel({ title: title, creatorId: creatorId });
+      const savedProject = await project.save();
+      await this.userRepository.addProjectId(creatorId, savedProject._id);
 
-      await UserModel.findByIdAndUpdate(
-        projectData.creatorId,
-        { $addToSet: { projectIds: savedProject._id } }, // Append projectIds array with Safely avoid duplicates: $addToSet
-        { new: true }
-      );
-
-      return mapProjectDocumentToProjectResponse(savedProject);
+      return savedProject.toObject();
     } catch (e) {
       throw e;
     }
   }
 
-  async deleteProject(projectId: string, userId: string) {
+  /*async deleteProject(projectId: string, userId: string) {
     try {
-      const project = await Project.findById(projectId);
+      const project = await ProjectModel.findById(projectId);
       if (!project) throw Error(`Project with id ${projectId} not found!`);
 
       if (project.creatorId === userId) {
-        await Project.findByIdAndDelete(projectId);
+        await ProjectModel.findByIdAndDelete(projectId);
         await UserModel.findByIdAndUpdate(userId, {
           $pull: { projectIds: projectId },
         });
@@ -50,5 +42,5 @@ export class ProjectService {
     } catch (e) {
       throw e;
     }
-  }
+  }*/
 }

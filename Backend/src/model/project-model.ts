@@ -1,21 +1,23 @@
 import { Document, Schema, Types, model } from "mongoose";
-import { BaseProject } from "../types/project-types";
 
-export interface ProjectDocument extends BaseProject, Document {
+export interface Project extends Document {
   _id: Types.ObjectId;
+  title: string;
+  creatorId: Types.ObjectId;
+  memberIds: Types.ObjectId[];
+  fileIds: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-const ProjectSchema = new Schema<ProjectDocument>(
+const ProjectSchema = new Schema<Project>(
   {
     title: { type: String, required: true, maxLength: 100 },
-    memberIds: { type: [String] },
-    pendingMemberIds: { type: [String] },
-    fileIds: { type: [String] },
-    creatorId: { type: String, required: true },
+    memberIds: [{ type: Schema.Types.ObjectId }],
+    creatorId: { type: Schema.Types.ObjectId, required: true },
+    fileIds: [{ type: Schema.Types.ObjectId }],
   },
   { timestamps: true }
 );
 
-export const Project = model<ProjectDocument>("Project", ProjectSchema);
+export const ProjectModel = model<Project>("Project", ProjectSchema);
