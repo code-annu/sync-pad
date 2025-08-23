@@ -1,4 +1,4 @@
-export interface AuthReponse {
+export interface AuthResponse {
   user: {
     id: string;
     name: string;
@@ -6,6 +6,16 @@ export interface AuthReponse {
     projectIds: string[];
     requestIds: string[];
   };
+  refreshToken: {
+    id: string;
+    token: string;
+    userId: string;
+    expiresAt: Date;
+  };
+  accessToken: string;
+}
+
+export interface RefreshTokenResponse {
   refreshToken: {
     id: string;
     token: string;
