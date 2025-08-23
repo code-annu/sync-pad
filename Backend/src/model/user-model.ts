@@ -1,4 +1,5 @@
 import { Schema, model, Types, Document } from "mongoose";
+import { required } from "zod/mini";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -8,6 +9,7 @@ export interface User extends Document {
   passwordHash: string;
   name: string;
   projectIds: [Types.ObjectId];
+  requests?: [Types.ObjectId];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +29,7 @@ const UserSchema = new Schema<User>({
     minlength: [3, "Name must be at least 3 characters long"],
   },
   projectIds: [{ type: Types.ObjectId, required: true }],
+  requests: [{ type: Types.ObjectId, required: false }],
 });
 
 export const UserModel = model<User>("User", UserSchema);

@@ -33,4 +33,12 @@ export class RefreshTokenService {
       throw e;
     }
   }
+
+  async invalidateRefreshTokenByUserId(userId: string) {
+    try {
+      await RefreshTokenModel.deleteOne({ userId: userId });
+    } catch (e) {
+      throw e;
+    }
+  }
 }

@@ -10,13 +10,13 @@ const authController = new AuthController();
 authRouter.post(
   "/register",
   authValidate(registerSchema),
-  authController.registerUser.bind(authController)
+  authController.registerPost.bind(authController)
 );
 
 authRouter.post(
   "/login",
   authValidate(loginSchema),
-  authController.loginUser.bind(authController)
+  authController.loginPost.bind(authController)
 );
 
 authRouter.post(
