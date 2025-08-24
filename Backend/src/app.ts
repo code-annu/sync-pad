@@ -4,6 +4,7 @@ import { connectDB } from "./config/db";
 import { authRouter } from "./router/auth-router";
 import { projectRouter } from "./router/project-router";
 import { validateToken } from "./middleware/validate-token";
+import { fileRouter } from "./router/file-router";
 import Request from "../src/types/express/index";
 
 const app = express();
@@ -13,7 +14,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(authRouter);
-app.use(validateToken, projectRouter);
+app.use("/projects", validateToken, projectRouter);
+app.use("/projects/:projectId/files", validateToken, fileRouter);
 
 const PORT = 3000;
 connectDB().then(() => {

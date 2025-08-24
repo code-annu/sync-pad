@@ -3,7 +3,7 @@ import { ProjectModel, Project } from "../model/project-model";
 import { ProjectCreate } from "../types/project-types";
 
 export class ProjectRepository {
-  async createProject(projectData: ProjectCreate): Promise<Project> {
+  async saveProject(projectData: ProjectCreate): Promise<Project> {
     const project = new ProjectModel(projectData);
     const savedProject = await project.save();
     return savedProject.toObject();
