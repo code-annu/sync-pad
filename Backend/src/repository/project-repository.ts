@@ -9,6 +9,13 @@ export class ProjectRepository {
     return savedProject.toObject();
   }
 
+  async getProjectById(
+    projectId: string | Types.ObjectId
+  ): Promise<Project | null> {
+    const project = await ProjectModel.findById(projectId);
+    return project ? project.toObject() : null;
+  }
+
   async addFileId(
     projectId: Types.ObjectId | string,
     fileId: Types.ObjectId | string

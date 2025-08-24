@@ -1,5 +1,8 @@
 import { ProjectResponse } from "../types/project-types";
 import { Project } from "../model/project-model";
+import { User } from "../model/user-model";
+import { ProjectDetailResponse } from "../response/project-response";
+import { string } from "zod";
 
 export function mapToProjectResponse(project: Project) {
   const projectResponse: ProjectResponse = {
@@ -11,4 +14,27 @@ export function mapToProjectResponse(project: Project) {
   };
 
   return projectResponse;
+}
+
+export function mapToProjectDetailsResponse(
+  project: Project,
+  projectCreator: User,
+  projectMembers: User[]
+) {
+  const members: { id: string; name: string }[] = [];
+  for (const member of projectMembers) {
+    members.push({
+      id: member._id.toString(),
+      name: member.name,
+    });
+  }
+  const projectDetailResponse: ProjectDetailResponse = {
+    id: project._id.toString(),
+    title: project.title,
+    creator: { id: projectCreator._id.toString(), name: projectCreator.name },
+    members: members,
+    createdAt: project.createdAt,
+  };
+
+  return projectDetailResponse;
 }

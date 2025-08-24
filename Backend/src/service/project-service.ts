@@ -1,4 +1,5 @@
 import { Project, ProjectModel } from "../model/project-model";
+import { User } from "../model/user-model";
 import { ProjectRepository } from "../repository/project-repository";
 import { UserRepository } from "../repository/user-repository";
 
@@ -22,6 +23,25 @@ export class ProjectService {
     } catch (e) {
       throw e;
     }
+  }
+
+  async getProjectDetails(projectId: string): Promise<[Project, User, User[]]> {
+    const project = await this.projectRepository.getProjectById(projectId);
+    if (!project) throw Error(`Project with id ${projectId} not found`);
+
+    const creator = await this.userRepository.getUserById(project.creatorId);
+    if (!creator)
+      throw Error(
+        "Project creator not found. Account may deleted or deactivated."
+      );
+
+    const projectMembers: User[] = [];
+    for (const memberId of project.memberIds) {
+      const member = await this.userRepository.getUserById(memberId);
+      if (member) projectMembers.push(member);
+    }
+
+    return [project, creator, projectMembers];
   }
 
   /*async deleteProject(projectId: string, userId: string) {

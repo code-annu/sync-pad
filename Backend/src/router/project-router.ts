@@ -8,3 +8,8 @@ projectRouter.post(
   "/projects",
   projectController.projectsPost.bind(projectController)
 );
+
+projectRouter.get(
+  "/projects/:projectId",
+  projectController.projectsGet.bind(projectController)
+);
